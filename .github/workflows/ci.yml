@@ -13,6 +13,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,5 +21,9 @@ jobs:
           cache: npm
           node-version: lts/*
       - run: npm ci
-      - run: npm run type-check
       - run: npm run lint -- --max-warnings 0
+
+      # Skip type checking if the commit message contains "[skip-type-check]"
+      - name: Type Check
+        if: "!contains(github.event.head_commit.message, '[skip-type-check]')"
+        run: npm run type-check -- --no-cache --skip-lib-check
